@@ -23,6 +23,15 @@ pub fn set_state(window: Window, state: String, state_machine: State<'_, Machine
     
 }
 
+#[command(async)]
+pub fn set_debug(window: Window, state_machine: State<'_, MachineState>) {
+    println!("Commande reçue : changer le mode debug");
+
+    state_machine.set_debug();
+    print!("[set_debug] Mode debug actuel : {:?}", state_machine);
+    
+}
+
 #[command]
 pub fn get_state(state_machine: State<'_, MachineState>) -> StateMachine {
     println!("Commande reçue : récupérer l'état actuel.");

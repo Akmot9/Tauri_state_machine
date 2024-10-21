@@ -3,7 +3,7 @@
     <h1>Machine à état - Mode Compte</h1>
 
     <label>
-      <input type="checkbox" v-model="isDebugMode" />
+      <input type="checkbox" v-model="isDebugMode" @change="toggleDebugMode" />
       Activer le mode Debug
     </label>
 
@@ -37,7 +37,6 @@ export default defineComponent({
   },
   methods: {
     startCounting() {
-
       // Appel à Tauri pour démarrer le comptage
       invoke('start_counting', { target: this.targetCount, debug: this.isDebugMode })
         .then((message) => {
@@ -79,6 +78,17 @@ export default defineComponent({
       } else {
         console.error('Etat invalide');
       }
+    },
+    toggleDebugMode() {
+      // Inverser le mode debug dans le backend
+      console.log('Toggle du mode Debug, nouveau mode :', this.isDebugMode);
+      invoke('set_debug')
+        .then((message) => {
+          console.log('Mode debug modifié :', message);
+        })
+        .catch((error) => {
+          console.error('Erreur lors du changement de mode debug:', error);
+        });
     },
     // Méthode pour écouter les événements Tauri
     listenForUpdates() {

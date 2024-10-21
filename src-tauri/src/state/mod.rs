@@ -1,5 +1,7 @@
 use std::{sync::{Arc, Mutex}, thread, time::Duration};
 
+
+
 use crate::commandes::{send_count_update, send_state_update};
 
 #[derive(Clone, serde::Serialize, Debug)]
@@ -9,14 +11,17 @@ pub enum StateMachine {
     Pause,
 }
 
+#[derive(Clone, serde::Serialize, Debug)]
 pub struct MachineState {
     state: Arc<Mutex<StateMachine>>,
+    debug: Arc<Mutex<bool>>
 }
 
 impl Default for MachineState {
     fn default() -> Self {
         Self {
-            state: Arc::new(Mutex::new(StateMachine::Idle))
+            state: Arc::new(Mutex::new(StateMachine::Idle)),
+            debug: Arc::new(Mutex::new(false)),
         }
     }
 }
@@ -86,6 +91,11 @@ impl MachineState {
 
 
         });
+    }
+
+    pub fn set_debug(&self) {
+        let mut debug = self.debug.lock().unwrap();
+        *debug = !*debug;
     }
 }
 
