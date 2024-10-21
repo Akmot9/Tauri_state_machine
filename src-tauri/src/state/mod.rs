@@ -53,7 +53,7 @@ impl MachineState {
         let state_arc = Arc::clone(&self.state);
         let debug_arc = Arc::clone(&self.debug); // Cloner l'Arc pour l'utiliser dans le thread
         println!("[start_counting] Démarrage du comptage avec cible {}", target);
-        
+    
         thread::spawn(move || {
             for count in 1..=target {
                 // Vérifier et attendre l'état "play"
@@ -64,20 +64,20 @@ impl MachineState {
                     };
                     println!("[loop] État de la machine à vérifier : {:?}", state);
                     send_state_update(window.clone(), state.to_string().as_str());
-
+    
                     if let StateMachine::Play = state {
                         println!("[loop] État Play détecté, sortie de la boucle d'attente");
                         break;
                     }
-
+    
                     println!("[loop] La machine n'est pas en mode play, en attente du mode play...");
                     thread::sleep(Duration::from_secs(1));
                 }
-
+    
                 // Comptage
                 println!("[start_counting] Comptage en cours... Valeur actuelle : {}", count);
                 send_count_update(window.clone(), count);
-
+    
                 // Vérifier le mode debug avant de passer en pause
                 let is_debug = *debug_arc.lock().unwrap();
                 if is_debug {
@@ -86,19 +86,26 @@ impl MachineState {
                     *state = StateMachine::Pause;
                     println!("[start_counting] État actuel après passage en pause : {:?}", *state);
                 }
-
+    
                 // Simuler une attente entre les incréments de comptage
                 thread::sleep(Duration::from_secs(1));
             }
-
+    
             // Comptage terminé, retour à l'état idle
             let mut state = state_arc.lock().unwrap();
             println!("[start_counting] Comptage terminé, retour à l'état Idle.");
             *state = StateMachine::Idle;
             println!("[start_counting] État actuel après retour à Idle : {:?}", *state);
             send_state_update(window, "idle".into());
+    
+            // Fin du thread
+            println!("[start_counting] Le thread de comptage est terminé.");
         });
+    
+        // Ceci indique la fin de l'initialisation du thread (pas du thread lui-même)
+        println!("[start_counting] Fin de l'initialisation du comptage avec cible. Cible : {}", target);
     }
+    
 
     pub fn set_debug(&self) {
         let mut debug = self.debug.lock().unwrap(); // Verrouiller pour modifier la valeur

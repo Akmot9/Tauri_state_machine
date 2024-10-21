@@ -24,7 +24,7 @@ pub fn set_state(window: Window, state: String, state_machine: State<'_, Machine
 }
 
 #[command(async)]
-pub fn set_debug(window: Window, state_machine: State<'_, MachineState>) {
+pub fn set_debug(state_machine: State<'_, MachineState>) {
     println!("Commande reçue : changer le mode debug");
 
     state_machine.set_debug();

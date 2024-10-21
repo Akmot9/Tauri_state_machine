@@ -16,6 +16,7 @@
     <button @click="togglePlayPause">
       {{ currentState === 'play' ? 'Pause' : 'Play' }}
     </button>
+    <button @click="startCounting">reset</button>
 
     
   </div>
