@@ -5,7 +5,7 @@ use crate::state::{MachineState, StateMachine};
 #[command(async)]
 pub fn start_counting(window: Window, target: u32, debug: bool, state_machine: State<'_, MachineState>) {
     println!("start_counting] Commande reçue : démarrer le comptage avec cible {} et debug = {}", target, debug);
-    state_machine.start_counting(window, target, debug);
+    state_machine.init_machine(window, target, debug);
 }
 
 #[command(async)]

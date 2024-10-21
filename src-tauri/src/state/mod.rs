@@ -18,7 +18,6 @@ impl Default for MachineState {
         Self {
             state: Arc::new(Mutex::new(StateMachine::Idle))
         }
-        
     }
 }
 
@@ -27,6 +26,8 @@ impl MachineState {
         let mut state = self.state.lock().unwrap();
         println!("Changement d'état : {:?}", new_state);
         *state = new_state;
+        println!("État actuel après changement : {:?}", *state);
+
     }
 
     pub fn get_state(&self) -> StateMachine {
@@ -35,10 +36,10 @@ impl MachineState {
         state.clone()
     }
 
-    pub fn start_counting(&self, window: tauri::Window, target: u32, debug: bool) {
-        send_state_update(window.clone(), "play".into());
+    pub fn init_machine(&self, window: tauri::Window, target: u32, debug: bool) {
+        send_state_update(window.clone(), "idle".into());
         let state_arc = Arc::clone(&self.state);
-        println!("Démarrage du comptage. Cible : {} | Mode debug : {}", target, debug);
+        println!("[start_counting] Démarrage du comptage avec cible {} | Mode debug : {}", target, debug);
         thread::spawn(move || {
             for count in 1..=target {
                 // Vérifier et attendre l'état "play" dans une section critique
@@ -47,24 +48,29 @@ impl MachineState {
                         let state = state_arc.lock().unwrap(); // verrouiller seulement dans cette section
                         state.clone()
                     };
+                    println!("[loop] État de la machine à vérifier : {:?}", state);
 
                     if let StateMachine::Play = state {
+                        println!("[loop] État Play détecté, sortie de la boucle d'attente");
+
                         break;
                     }
 
-                    println!("La machine est en pause, en attente du mode play...");
+                    println!("[loop] La machine est pas en mode play, en attente du mode play...");
                     thread::sleep(Duration::from_secs(1));
                 }
 
                 // Comptage
-                println!("Comptage en cours... Valeur actuelle : {}", count);
+                println!("[start_counting] Comptage en cours... Valeur actuelle : {}", count);
                 send_count_update(window.clone(), count);
 
                 // Si le mode debug est activé, passer en pause après chaque incrément
                 if debug {
                     let mut state = state_arc.lock().unwrap(); // verrouiller ici
-                    println!("Mode debug activé, la machine passe en pause.");
+                    println!("[start_counting] Mode debug activé, la machine passe en pause.");
                     *state = StateMachine::Pause;
+                    println!("[start_counting] État actuel après passage en pause : {:?}", *state);
+
                 }
 
                 // Simuler une attente entre les incréments de comptage
@@ -73,8 +79,12 @@ impl MachineState {
 
             // Comptage terminé, la machine repasse à l'état idle
             let mut state = state_arc.lock().unwrap();
-            println!("Comptage terminé, retour à l'état Idle.");
+            println!("[start_counting] Comptage terminé, retour à l'état Idle.");
             *state = StateMachine::Idle;
+            println!("[start_counting] État actuel après retour à Idle : {:?}", *state);
+            send_state_update(window.clone(), "idle".into());
+
+
         });
     }
 }

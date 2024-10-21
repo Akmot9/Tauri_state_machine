@@ -17,13 +17,12 @@
       {{ currentState === 'play' ? 'Pause' : 'Play' }}
     </button>
 
-    <!-- Bouton pour démarrer directement le comptage -->
-    <button @click="startCounting">Démarrer</button>
+    
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted } from 'vue';
+import { defineComponent } from 'vue';
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 
@@ -38,9 +37,7 @@ export default defineComponent({
   },
   methods: {
     startCounting() {
-      // Démarrage du comptage en mode play
-      this.currentState = 'PLAY';
-      this.currentCount = 0;
+
       // Appel à Tauri pour démarrer le comptage
       invoke('start_counting', { target: this.targetCount, debug: this.isDebugMode })
         .then((message) => {
@@ -51,6 +48,7 @@ export default defineComponent({
         });
     },
     togglePlayPause() {
+      console.log('Clique sur le bouton Play/Pause', this.currentState);
       if (this.currentState === 'play') {
         this.currentState = 'pause';
         invoke('set_state', { state: 'pause' })
@@ -69,6 +67,17 @@ export default defineComponent({
           .catch((error) => {
             console.error('Erreur lors du passage en mode play:', error);
           });
+      } else if (this.currentState === 'idle') {
+        this.currentState = 'play';
+        invoke('set_state', { state: 'play' })
+          .then((message) => {
+            console.log('La machine est en mode play:', message);
+          })
+          .catch((error) => {
+            console.error('Erreur lors du passage en mode play:', error);
+          });
+      } else {
+        console.error('Etat invalide');
       }
     },
     // Méthode pour écouter les événements Tauri
@@ -87,7 +96,9 @@ export default defineComponent({
     }
   },
   mounted() {
+    // Écouter les événements depuis le backend
     this.listenForUpdates();
+    this.startCounting();
   }
 });
 </script>
