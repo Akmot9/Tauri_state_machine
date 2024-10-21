@@ -3,9 +3,9 @@ use tauri::{command, Emitter, State, Window};
 use crate::state::{MachineState, StateMachine};
 
 #[command(async)]
-pub fn start_counting(window: Window, target: u32, debug: bool, state_machine: State<'_, MachineState>) {
-    println!("start_counting] Commande reçue : démarrer le comptage avec cible {} et debug = {}", target, debug);
-    state_machine.init_machine(window, target, debug);
+pub fn start_counting(window: Window, target: u32, state_machine: State<'_, MachineState>) {
+    println!("start_counting] Commande reçue : démarrer le comptage avec cible {} ", target);
+    state_machine.init_machine(window, target);
 }
 
 #[command(async)]

@@ -38,7 +38,7 @@ export default defineComponent({
   methods: {
     startCounting() {
       // Appel à Tauri pour démarrer le comptage
-      invoke('start_counting', { target: this.targetCount, debug: this.isDebugMode })
+      invoke('start_counting', { target: this.targetCount })
         .then((message) => {
           console.log('Comptage démarré:', message);
         })
