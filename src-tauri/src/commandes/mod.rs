@@ -4,7 +4,10 @@ use crate::state::{MachineState, StateMachine};
 
 #[command(async)]
 pub fn start_counting(window: Window, target: u32, state_machine: State<'_, MachineState>) {
-    println!("start_counting] Commande reçue : démarrer le comptage avec cible {} ", target);
+    println!(
+        "start_counting] Commande reçue : démarrer le comptage avec cible {} ",
+        target
+    );
     state_machine.init_machine(window, target);
 }
 
@@ -20,7 +23,6 @@ pub fn set_state(window: Window, state: String, state_machine: State<'_, Machine
     }
     println!("Commande reçue : changement d'état à {}", state);
     state_machine.set_state(new_state);
-    
 }
 
 #[command(async)]
@@ -29,7 +31,6 @@ pub fn set_debug(state_machine: State<'_, MachineState>) {
 
     state_machine.set_debug();
     print!("[set_debug] Mode debug actuel : {:?}", state_machine);
-    
 }
 
 #[command]
